@@ -39,6 +39,25 @@ class ReviewApiController {
 
     public function getReviews($params = null) {
 
+
+     /*   if (isset($_GET['filter'])  && isset($_GET['sortby']) && isset($_GET['order']) && isset($_GET['page']) && isset($_GET['limit'])){
+            $filter = $_GET['filter'];
+            $sortby = $_GET['sortby'];
+            $order = $_GET['order']; 
+            $page = $_GET['page'];
+            $limit = $_GET['limit'];
+            $start = ($page -1) *  $limit;
+           
+        $reviews = $this->model->makeAll($filter, $sortby, $order, $start, $limit);
+        $this->view->response($reviews);
+        }
+
+        */
+    
+
+
+        
+
         if(isset($_GET['order']) && !isset($_GET['sortby']) && ($_GET['order'] == 'desc')) {
              $this->orderdesc(); 
         }
@@ -53,18 +72,24 @@ class ReviewApiController {
                     $this->view->response("Campo incorrecto", 400);
                 }
             }
-        elseif (isset($_GET['page']) && (isset($_GET['limit']))) {
+            else if (isset($_GET['page']) && (isset($_GET['limit']))) {
                 $page = $_GET['page'];
                 $limit = $_GET['limit'];
-                if (is_numeric($page) && (is_numeric($limit))){
-                    $num = ($page -1) * $limit;          $reviews =  $this->model->paginate($num, $limit);
-                    $this->view->response($reviews);
-                   }
-                else {
-                    $this->view->response("Debe ingresar un numero", 400);
+                try {
+                    if (is_numeric($page) && (is_numeric($limit))) {
+                        $offset = ($page -1) *  $limit;
+                        $reviews =  $this->model->paginate($offset, $limit);
+                        $this->view->response($reviews);
+                       }
+                    else {
+                        $this->view->response("Debe ingresar un numero", 400);
+                    }
+                }
+                catch (PDOException $e){
+                    $this->view->response("Debe ingresar a partir de la pagina numero 1", 400);
                 }
             }
-        elseif (isset($_GET['filter'])) {
+        else if (isset($_GET['filter'])) {
            $paramers =  $this->paramers();
            $filter = $_GET['filter'];
            $reviews =  $this->model->filter($filter);
@@ -79,6 +104,8 @@ class ReviewApiController {
             $reviews = $this->model->getall();
             $this->view->response($reviews);
         }
+
+        
     
     }
 

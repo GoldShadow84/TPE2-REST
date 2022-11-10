@@ -34,6 +34,20 @@ class ReviewModel {
         return $review;
     }
 
+    function makeAll ($filter = null, $sortby = null , $order = null , $start= null, $limit= null) {
+        $sql = "SELECT * FROM review";
+        $filtering = " WHERE score > ? ";
+        $order = "ORDER BY $sortby $order ";
+        $paginate =  "LIMIT $limit OFFSET $start" ;
+        $query = $this->db->prepare($sql . $filtering . $order . $paginate);
+        $query->execute([$filter]);
+        $reviews = $query->fetchAll(PDO::FETCH_OBJ);
+        return $reviews;
+    }
+
+
+
+
     //añadir una nueva reseña
     public function insert($author, $comment, $id_serie) {
     
@@ -94,8 +108,8 @@ class ReviewModel {
     }
 
     //paginar las reseñas
-    function paginate ($start= null, $limit= null) {
-        $query = $this->db->prepare("SELECT * FROM reviews ORDER BY id_review LIMIT $limit OFFSET $start ");
+    function paginate ($offset= null, $limit= null) {
+        $query = $this->db->prepare("SELECT * FROM reviews LIMIT $limit OFFSET $offset ");
         $query->execute();
         $reviews = $query->fetchAll(PDO::FETCH_OBJ);
          

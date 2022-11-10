@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 03-11-2022 a las 18:14:59
+-- Tiempo de generación: 10-11-2022 a las 12:27:51
 -- Versión del servidor: 10.4.24-MariaDB
 -- Versión de PHP: 8.1.6
 
@@ -53,14 +53,14 @@ CREATE TABLE `reviews` (
   `author` varchar(45) NOT NULL,
   `about` varchar(45) NOT NULL,
   `comment` varchar(500) NOT NULL,
-  `id_Serie` int(11) NOT NULL
+  `id_Serie_fk` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Volcado de datos para la tabla `reviews`
 --
 
-INSERT INTO `reviews` (`id_review`, `author`, `about`, `comment`, `id_Serie`) VALUES
+INSERT INTO `reviews` (`id_review`, `author`, `about`, `comment`, `id_Serie_fk`) VALUES
 (1, 'Sanchezzzzzzzzzzzzzzzzzzz', 'betteraaaa call saullllllllllllllllll', 'just a great and awesome spin off, like breaking bad or even betterraaaaaaaaarrrrrrrrrrrrrrrrrrrrrrrr.', 16),
 (5, 'dasdasdas', 'asdsadas', 'asdasd', 14),
 (6, 'dasdasdas', 'asdsadas', 'asdasd', 14),
@@ -72,7 +72,10 @@ INSERT INTO `reviews` (`id_review`, `author`, `about`, `comment`, `id_Serie`) VA
 (14, 'Sanchez', 'better call saul', 'just a great and awesome spin off, like breaking bad or even better.', 14),
 (15, 'Sanchez', 'better call saul', 'just a great and awesome spin off, like breaking bad or even better.', 14),
 (16, 'Sanchez', 'better call saul', 'just a great and awesome spin off, like breaking bad or even better.', 14),
-(17, 'Sanchez', 'better call saul', 'just a great and awesome spin off, like breaking bad or even better.', 14);
+(17, 'Sanchez', 'better call saul', 'just a great and awesome spin off, like breaking bad or even better.', 14),
+(20, 'Sanchez', 'better call saul', 'just a great and awesome spin off, like breaking bad or even better.', 11),
+(21, 'Sanchezzz', 'better call saul', 'just a great and awesome spin off, like breaking bad or even better.', 11),
+(25, 'Sanchezzz', 'better call saul', 'just a great and awesome spin off, like breaking bad or even better.', 11);
 
 -- --------------------------------------------------------
 
@@ -132,7 +135,7 @@ ALTER TABLE `platform`
 --
 ALTER TABLE `reviews`
   ADD PRIMARY KEY (`id_review`),
-  ADD KEY `FK_id_serie` (`id_Serie`) USING BTREE;
+  ADD KEY `FK_id_serie` (`id_Serie_fk`) USING BTREE;
 
 --
 -- Indices de la tabla `serie`
@@ -161,7 +164,7 @@ ALTER TABLE `platform`
 -- AUTO_INCREMENT de la tabla `reviews`
 --
 ALTER TABLE `reviews`
-  MODIFY `id_review` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `id_review` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT de la tabla `serie`
@@ -183,7 +186,7 @@ ALTER TABLE `users`
 -- Filtros para la tabla `reviews`
 --
 ALTER TABLE `reviews`
-  ADD CONSTRAINT `reviews_ibfk_1` FOREIGN KEY (`id_Serie`) REFERENCES `serie` (`id_serie`);
+  ADD CONSTRAINT `reviews_ibfk_1` FOREIGN KEY (`id_Serie_fk`) REFERENCES `serie` (`id_serie`);
 
 --
 -- Filtros para la tabla `serie`
