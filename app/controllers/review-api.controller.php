@@ -24,7 +24,7 @@ class ReviewApiController {
         return json_decode($this->data);
     }
 
-    public function paramers ($params = null) {  //function para reutilizacion de arreglo asociativo.
+    public function paramers($params = null) {  //function para reutilizacion de arreglo asociativo.
         $paramers = array('id_review' => 'id_review',
         'author' => 'author',
         'about' => 'about',
@@ -37,20 +37,77 @@ class ReviewApiController {
     }
 
 
-    public function getReviews($params = null) {
+    public function getReviews() {
+        
+        $filter = null;
+        $sortby = null;
+        $order = null;
+        $page = null;
+        $limit = null;
+        $offset = null;
+        $aux = null; //sera null si el paginado no se utiliza.
 
-
-     if (isset($_GET['filter'])  && isset($_GET['sortby']) && isset($_GET['order']) && isset($_GET['page']) && isset($_GET['limit'])) {
-            $filter = $_GET['filter'];
+     if(isset($_GET['filter'])  && isset($_GET['sortby']) && isset($_GET['order']) && isset($_GET['page']) || isset($_GET['limit'])) {
+        //filtrar, ordenar, paginar
             $sortby = $_GET['sortby'];
             $order = $_GET['order']; 
-            $page = $_GET['page'];
-            $limit = $_GET['limit'];
-            $offset = ($page -1) *  $limit;
-           
-        $reviews = $this->model->makeAll($filter, $sortby, $order, $offset, $limit);
-        $this->view->response($reviews);
+            $aux = 1;
+
+            if(isset($_GET['page']) && isset($_GET['limit'])) { //solo si limit y page existen a al vez, se crearan las variables.
+                $page = $_GET['page'];
+                $limit = $_GET['limit'];
+                $offset = ($page -1) *  $limit;
+            }
+            
+     }
+     else if(isset($_GET['filter'])  && isset($_GET['sortby']) && isset($_GET['order']) && !isset($_GET['page']) && !isset($_GET['limit'])) {
+        //filtrar, ordenar
+
+        $filter = $_GET['filter'];
+        $sortby = $_GET['sortby'];
+        $order = $_GET['order']; 
+
+     }
+     else if(isset($_GET['filter'])  && !isset($_GET['sortby']) && !isset($_GET['order']) && isset($_GET['page']) || isset($_GET['limit'])) {
+        //filtrar, paginar
+
+        $filter = $_GET['filter'];
+        $aux = 1;
+
+            if(isset($_GET['page']) && isset($_GET['limit'])) { //solo si limit y page existen a al vez, se crearan las variables.
+                $page = $_GET['page'];
+                $limit = $_GET['limit'];
+                $offset = ($page -1) *  $limit;
+            }
+     }
+    else if(!isset($_GET['filter'])  && isset($_GET['sortby']) && isset($_GET['order']) && isset($_GET['page']) || isset($_GET['limit'])) {
+            //ordenar, paginar
+            $aux = 1;
+
+            if(isset($_GET['page']) && isset($_GET['limit'])) { //solo si limit y page existen a al vez, se crearan las variables.
+                $page = $_GET['page'];
+                $limit = $_GET['limit'];
+                $offset = ($page -1) *  $limit;
+            }
+     }
+     else if(isset($_GET['filter'])  && !isset($_GET['sortby']) && !isset($_GET['order']) && !isset($_GET['page']) && !isset($_GET['limit'])) {
+        $filter = $_GET['filter'];
+
+     }
+
+
+
+     $reviews = $this->model->makeAll($filter, $sortby, $order, $offset, $limit, $aux);
+
+
+
+        if($reviews) {
+            $this->view->response($reviews);
         }
+        else {
+            $this->view->response("Parametros incorrectos",400);
+        }
+        
    
 
         

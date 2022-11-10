@@ -36,22 +36,71 @@ class ReviewModel {
 
 
     //realizar todas las acciones
-    function makeAll ($filter = null, $sortby = null , $order = null , $offset= null, $limit= null) {
+    function makeAll ($filter = null, $sortby = null , $order = null , $offset= null, $limit= null, $aux = null) {
 
         //SELECT id_review, author, comment, name, id_Serie_fk FROM reviews a INNER JOIN serie b ON a.id_Serie_fk = b.id_serie WHERE name LIKE "better%" ORDER BY id_review DESC LIMIT 4 OFFSET 0;
 
-
+        $sentence = null;
         $l = '%'; //para concatenar y usar el filtro.
         $sql = "SELECT id_review, author, comment, name, id_Serie_fk FROM reviews a INNER JOIN serie b ON a.id_Serie_fk = b.id_serie "; 
-        $filtering = "WHERE name LIKE ? "; 
+        $filterstring = "WHERE name LIKE ? "; 
         $order = "ORDER BY $sortby $order ";
         $paginate =  "LIMIT $limit OFFSET $offset ";
-        $query = $this->db->prepare($sql . $filtering . $order . $paginate);
- 
-        $query->execute([$filter . $l]);
-        $reviews = $query->fetchAll(PDO::FETCH_OBJ);
+
+        //order y sortby deben existir a la vez
+        //posibilidades
+
+        if(!empty($filter) && !empty($sortby) && !empty($order) && !empty($order) && !empty($aux)) {
+            
+            //filtrar, ordenar, paginar
+
+            $sentence = $sql . $filterstring . $order . $paginate;
+        }   
+        else if(!empty($filter) && !empty($sortby) && !empty($order) && empty($aux)) {
+            //filtrar, ordenar  
+            
+            $sentence = $sql . $filterstring . $order;
+        }
+        else if(!empty($filter) && empty($sortby) && empty($order) && !empty($aux)) {
+            //filtrar, paginar  - ARREGLAR
+
+            $sentence = $sql . $filterstring . $paginate;
+        }
+        else if(empty($filter) && !empty($sortby) && !empty($order) && !empty($aux)) {
+            //ordenar, paginar
+            
+            $sentence = $sql . $order . $paginate;
+        }
+        else if(!empty($filter)) {
+            //filtrar
+            $sentence = $sql . $filterstring;
+        }   
+           
+        
+           
+            //filtrar
+            //ordenar
+            //paginar
+            //ninguna
+       try {   
+            $query = $this->db->prepare($sentence); //preparar sentencia formada segun las condiciones cumplidas
+
+            if(!empty($filter)) {   //si se usa el filtro, usar variable en execute
+                $query->execute([$filter . $l]);
+            }
+            else {
+                $query->execute();
+            }
+    
+            $reviews = $query->fetchAll(PDO::FETCH_OBJ);
+        }
+        catch(PDOException $e) {
+            $reviews = false;
+
+        }
+        
         return $reviews;
-    }
+    }   
     
 
 
