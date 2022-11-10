@@ -34,7 +34,7 @@ class ReviewModel {
         return $review;
     }
 
-    function makeAll ($filter = null, $sortby = null , $order = null , $start= null, $limit= null) {
+    /*function makeAll ($filter = null, $sortby = null , $order = null , $start= null, $limit= null) {
         $sql = "SELECT * FROM review";
         $filtering = " WHERE score > ? ";
         $order = "ORDER BY $sortby $order ";
@@ -44,6 +44,7 @@ class ReviewModel {
         $reviews = $query->fetchAll(PDO::FETCH_OBJ);
         return $reviews;
     }
+    */
 
 
 
@@ -100,7 +101,7 @@ class ReviewModel {
     }
 
     //ordenar por id y campo
-    function sortbyorder ($sortby = null , $order = null ){
+    function sortbyorder ($sortby = null , $order = null ) {
         $query = $this->db->prepare("SELECT * FROM reviews ORDER BY $sortby $order");
         $query->execute();
         $reviews = $query->fetchAll(PDO::FETCH_OBJ);
@@ -118,8 +119,9 @@ class ReviewModel {
 
     //filtrar por campo about
     function filter ($filter = null) {
-        $query = $this->db->prepare("SELECT id_review, author, comment, name, id_Serie_fk FROM reviews a INNER JOIN serie b ON a.id_Serie_fk = b.id_serie WHERE name LIKE '$filter%'");
-        $query->execute();
+        $l = '%';
+        $query = $this->db->prepare("SELECT id_review, author, comment, name, id_Serie_fk FROM reviews a INNER JOIN serie b ON a.id_Serie_fk = b.id_serie WHERE name LIKE ?");
+        $query->execute([$filter . $l]);
         $reviews = $query->fetchAll(PDO::FETCH_OBJ);
         return $reviews;
     }

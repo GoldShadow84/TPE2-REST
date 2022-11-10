@@ -39,8 +39,8 @@ class ReviewApiController {
 
     public function getReviews($params = null) {
 
-
-     /*   if (isset($_GET['filter'])  && isset($_GET['sortby']) && isset($_GET['order']) && isset($_GET['page']) && isset($_GET['limit'])){
+/*
+     if (isset($_GET['filter'])  && isset($_GET['sortby']) && isset($_GET['order']) && isset($_GET['page']) && isset($_GET['limit'])) {
             $filter = $_GET['filter'];
             $sortby = $_GET['sortby'];
             $order = $_GET['order']; 
@@ -51,11 +51,9 @@ class ReviewApiController {
         $reviews = $this->model->makeAll($filter, $sortby, $order, $start, $limit);
         $this->view->response($reviews);
         }
+*/    
 
-        */
-    
-
-
+        
         
 
         if(isset($_GET['order']) && !isset($_GET['sortby']) && ($_GET['order'] == 'desc')) {
@@ -104,6 +102,7 @@ class ReviewApiController {
             $reviews = $this->model->getall();
             $this->view->response($reviews);
         }
+        
 
         
     
