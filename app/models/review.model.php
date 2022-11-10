@@ -34,17 +34,25 @@ class ReviewModel {
         return $review;
     }
 
-    /*function makeAll ($filter = null, $sortby = null , $order = null , $start= null, $limit= null) {
-        $sql = "SELECT * FROM review";
-        $filtering = " WHERE score > ? ";
+
+    //realizar todas las acciones
+    function makeAll ($filter = null, $sortby = null , $order = null , $offset= null, $limit= null) {
+
+        //SELECT id_review, author, comment, name, id_Serie_fk FROM reviews a INNER JOIN serie b ON a.id_Serie_fk = b.id_serie WHERE name LIKE "better%" ORDER BY id_review DESC LIMIT 4 OFFSET 0;
+
+
+        $l = '%'; //para concatenar y usar el filtro.
+        $sql = "SELECT id_review, author, comment, name, id_Serie_fk FROM reviews a INNER JOIN serie b ON a.id_Serie_fk = b.id_serie "; 
+        $filtering = "WHERE name LIKE ? "; 
         $order = "ORDER BY $sortby $order ";
-        $paginate =  "LIMIT $limit OFFSET $start" ;
+        $paginate =  "LIMIT $limit OFFSET $offset ";
         $query = $this->db->prepare($sql . $filtering . $order . $paginate);
-        $query->execute([$filter]);
+ 
+        $query->execute([$filter . $l]);
         $reviews = $query->fetchAll(PDO::FETCH_OBJ);
         return $reviews;
     }
-    */
+    
 
 
 
