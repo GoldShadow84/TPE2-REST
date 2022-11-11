@@ -36,70 +36,144 @@ class ReviewApiController {
     return $paramers;
     }
 
-
     public function getReviews() {
+
+        $paramers = $this->paramers(); //evitar inyecciones sql
         
+        //variables creadas con valor nulo, para evitar warnings de variable indefinida, en caso de que no se utilice en alguno de los if.
+
         $filter = null;
         $sortby = null;
         $order = null;
         $page = null;
         $limit = null;
-        $offset = null;
-        $aux = null; //sera null si el paginado no se utiliza.
+        $start = null;
+        $verifyfilter = null;
 
-     if(isset($_GET['filter'])  && isset($_GET['sortby']) && isset($_GET['order']) && isset($_GET['page']) || isset($_GET['limit'])) {
-        //filtrar, ordenar, paginar
+        //strings para armar sentencias segun que condiciones se cumplan.
+
+
+        //ordring y paginate en null ya que al utilizar variables, el valor se asigna segun que condiciones cumplan y previniedo inyecciones sql
+
+        $ordering = null; 
+        $paginate =  null; 
+        $sentence = null; 
+        $sql = "SELECT id_review, author, comment, name, id_Serie_fk FROM reviews a INNER JOIN serie b ON a.id_Serie_fk = b.id_serie ";
+        $filterstring = "WHERE name LIKE ? "; 
+   
+
+        //ninguno
+        if(!isset($_GET['filter']) && !isset($_GET['sortby']) && !isset($_GET['order']) && !isset($_GET['page']) && !isset($_GET['limit'])) {
+
+            $sentence = $sql;
+
+        }//filtrar
+        else if(isset($_GET['filter']) && !isset($_GET['sortby']) && !isset($_GET['order']) && !isset($_GET['page']) && !isset($_GET['limit'])) {
+            $filter = $_GET['filter'];
+
+            $sentence = $sql . $filterstring;
+
+        }//ordenar por id
+        else if(isset($_GET['order']) && !isset($_GET['sortby']) && !isset($_GET['filter']) && !isset($_GET['page']) && !isset($_GET['limit'])) {
+            $order = $_GET['order'];
+            $orderbyid = "ORDER BY id_review $order "; 
+
+            if(isset($paramers[$order])) { //solo si los campos existen en la tabla se arma la sentencia con las variables
+                $sentence = $sql . $orderbyid;
+            }
+        }//ordenar por campo
+        else if(isset($_GET['order']) && isset($_GET['sortby']) && !isset($_GET['filter']) && !isset($_GET['page']) && !isset($_GET['limit'])) {
             $sortby = $_GET['sortby'];
-            $order = $_GET['order']; 
-            $aux = 1;
+            $order = $_GET['order'];
+            $ordering = "ORDER BY $sortby $order "; 
 
-            if(isset($_GET['page']) && isset($_GET['limit'])) { //solo si limit y page existen a al vez, se crearan las variables.
-                $page = $_GET['page'];
-                $limit = $_GET['limit'];
-                $offset = ($page -1) *  $limit;
+            if(isset($paramers[$sortby]) && isset($paramers[$order])) { //solo si los campos existen en la tabla se arma la sentencia con las variables
+                $sentence = $sql . $ordering;
             }
+        }//paginar
+        else if(isset($_GET['page']) && isset($_GET['limit']) && !isset($_GET['order']) && !isset($_GET['sortby']) && !isset($_GET['filter']))  {
+            $page = $_GET['page'];
+            $limit = $_GET['limit'];
+
+            //el usuario usa la pagina 1 en adelante y los valores deben ser numeros
+            if (is_numeric($page) && (is_numeric($limit))) {
+
+                $start = ($page -1) *  $limit;
+
+                $paginate =  "LIMIT $limit OFFSET $start ";
+
+                $sentence = $sql . $paginate;
+            }
+        } //ordenar y paginar
+        else if(isset($_GET['order']) && isset($_GET['sortby']) && isset($_GET['page']) && isset($_GET['limit']) && !isset($_GET['filter']) ) {
+
+            $sortby = $_GET['sortby'];
+            $order = $_GET['order'];
+            $page = $_GET['page'];
+            $limit = $_GET['limit'];
+
+            if(isset($paramers[$sortby]) && isset($paramers[$order]) && is_numeric($page) && (is_numeric($limit))) { //solo si los campos existen en la tabla se arma la sentencia con las variables y los valores de page y limit son numeros, se cumplen las condiciones.
+
+                $start = ($page -1) *  $limit;
+
+                $ordering = "ORDER BY $sortby $order "; 
+                $paginate =  "LIMIT $limit OFFSET $start ";
+
+                $sentence = $sql . $ordering . $paginate;
+            }
+        }//filtrar y ordenar
+        else if(isset($_GET['filter']) && isset($_GET['order']) && isset($_GET['sortby']) && !isset($_GET['page']) && !isset($_GET['limit'])) {
+            $filter = $_GET['filter'];
+            $sortby = $_GET['sortby'];
+            $order = $_GET['order'];
+
+            $ordering = "ORDER BY $sortby $order "; 
+
+            if(isset($paramers[$sortby]) && isset($paramers[$order])) { //solo si los campos existen en la tabla se arma la sentencia con las variables
+                $sentence = $sql . $filterstring . $ordering;
+            }
+        }//filtrar y paginar
+        else if(isset($_GET['filter']) && isset($_GET['page']) && isset($_GET['limit']) && !isset($_GET['order']) && !isset($_GET['sortby'])) {
+            $page = $_GET['page'];
+            $limit = $_GET['limit'];
+            $filter = $_GET['filter'];
+
+                if (is_numeric($page) && (is_numeric($limit))) {
+
+                    $start = ($page -1) *  $limit;
+
+                    $paginate =  "LIMIT $limit OFFSET $start ";
+
+                    $sentence = $sql . $filterstring . $paginate;
+                }
+        }//filtrar, ordenar y paginar
+        else if(isset($_GET['filter']) && isset($_GET['order']) && isset($_GET['sortby']) && isset($_GET['page']) && isset($_GET['limit'])) {
             
-     }
-     else if(isset($_GET['filter'])  && isset($_GET['sortby']) && isset($_GET['order']) && !isset($_GET['page']) && !isset($_GET['limit'])) {
-        //filtrar, ordenar
+            $filter = $_GET['filter'];
+            $sortby = $_GET['sortby'];
+            $order = $_GET['order'];
+            $page = $_GET['page'];
+            $limit = $_GET['limit'];
 
-        $filter = $_GET['filter'];
-        $sortby = $_GET['sortby'];
-        $order = $_GET['order']; 
+            if(isset($paramers[$sortby]) && isset($paramers[$order]) && is_numeric($page) && (is_numeric($limit))) { //solo si los campos existen en la tabla se arma la sentencia con las variables y los valores de page y limit son numeros, se cumplen las condiciones.
 
-     }
-     else if(isset($_GET['filter'])  && !isset($_GET['sortby']) && !isset($_GET['order']) && isset($_GET['page']) || isset($_GET['limit'])) {
-        //filtrar, paginar
+                $start = ($page -1) *  $limit;
 
-        $filter = $_GET['filter'];
-        $aux = 1;
+                $ordering = "ORDER BY $sortby $order "; 
+                $paginate =  "LIMIT $limit OFFSET $start ";
 
-            if(isset($_GET['page']) && isset($_GET['limit'])) { //solo si limit y page existen a al vez, se crearan las variables.
-                $page = $_GET['page'];
-                $limit = $_GET['limit'];
-                $offset = ($page -1) *  $limit;
+                $sentence = $sql . $filterstring . $ordering . $paginate;
             }
-     }
-    else if(!isset($_GET['filter'])  && isset($_GET['sortby']) && isset($_GET['order']) && isset($_GET['page']) || isset($_GET['limit'])) {
-            //ordenar, paginar
-            $aux = 1;
 
-            if(isset($_GET['page']) && isset($_GET['limit'])) { //solo si limit y page existen a al vez, se crearan las variables.
-                $page = $_GET['page'];
-                $limit = $_GET['limit'];
-                $offset = ($page -1) *  $limit;
-            }
-     }
-     else if(isset($_GET['filter'])  && !isset($_GET['sortby']) && !isset($_GET['order']) && !isset($_GET['page']) && !isset($_GET['limit'])) {
-        $filter = $_GET['filter'];
+        }
 
-     }
+        //seccion ejecucion de la sentencia y retorno de la respuesta
 
+        if(!empty($filter)) {   //si se usa el filtro, usar variable en execute
+            $verifyfilter = $filter;
+        }
 
-
-     $reviews = $this->model->makeAll($filter, $sortby, $order, $offset, $limit, $aux);
-
-
+        $reviews = $this->model->makeAll($sentence, $verifyfilter);
 
         if($reviews) {
             $this->view->response($reviews);
@@ -108,79 +182,6 @@ class ReviewApiController {
             $this->view->response("Parametros incorrectos",400);
         }
         
-   
-
-        
-        /*
-
-        if(isset($_GET['order']) && !isset($_GET['sortby']) && ($_GET['order'] == 'desc')) {
-             $this->orderdesc(); 
-        }
-        else if(isset($_GET['sortby'])  && isset($_GET['order'])) {
-                $paramers =  $this->paramers();
-                $sortby = $_GET['sortby'];
-                $order = $_GET['order']; 
-                if(isset($paramers[$sortby]) && (isset($paramers[$order]))) { 
-                    $this->sortby($sortby, $order);
-                }
-                else {
-                    $this->view->response("Campo incorrecto", 400);
-                }
-            }
-            else if (isset($_GET['page']) && (isset($_GET['limit']))) {
-                $page = $_GET['page'];
-                $limit = $_GET['limit'];
-                try {
-                    if (is_numeric($page) && (is_numeric($limit))) {
-                        $offset = ($page -1) *  $limit;
-                        $reviews =  $this->model->paginate($offset, $limit);
-                        $this->view->response($reviews);
-                       }
-                    else {
-                        $this->view->response("Debe ingresar un numero", 400);
-                    }
-                }
-                catch (PDOException $e){
-                    $this->view->response("Debe ingresar a partir de la pagina numero 1", 400);
-                }
-            }
-        else if (isset($_GET['filter'])) {
-           $paramers =  $this->paramers();
-           $filter = $_GET['filter'];
-           $reviews =  $this->model->filter($filter);
-                if(!empty($reviews)) {
-                    $this->view->response($reviews);
-                }
-                else {
-                    $this->view->response("No se encontro un registro", 200);
-                }
-        }
-        else {
-            $reviews = $this->model->getall();
-            $this->view->response($reviews);
-        }
-        */
-
-        
-    
-    }
-
-
-    //ordenar por id
-    function orderdesc($params = null) {
-        $reviews = $this->model->orderdesc();
-        $this->view->response($reviews);
-    }
-
-    //ordenar por campo e Id
-    function sortby($sortby = null, $order = null) {
-        $reviews = $this->model->sortbyorder($sortby, $order);
-        if ($reviews){
-            $this->view->response($reviews);
-        }
-        else {
-            $this->view->response("escribio mal los campos", 400);
-        }
     }
 
     //obtener solo una reseña por id
@@ -251,8 +252,6 @@ class ReviewApiController {
         }
     } 
     
-   
-
 }
     
  
