@@ -2,28 +2,52 @@
 
 ## Importar la base de datos
 - importar desde PHPMyAdmin (o cualquiera) database/db_series.sql
+
 # Pueba con postman, o similar.
 El endpoint de la API es: http://localhost/tucarpetalocal/chocolate-rest/api/reviews
 
 # Obtener todas las reseñas:
 http://localhost/tucarpetalocal/TPE2-REST/api/reviews.
+
 # Obtener una reseña:
 http://localhost/tucarpetalocal/TPE2-REST/api/reviews/id de reseña
 
-# Obtener las reseñas descendentemente por id.
-http://localhost/tucarpetalocal/TPE2-REST/api/reviews?order=desc
 # Crear una nueva reseña:
  verbo http POST + http://localhost/tucarpetalocal/TPE2-REST/api/reviews
+
 # Eliminar una reseña:
  verbo http DELETE + http://localhost/tucarpetalocal/TPE2-REST/api/reviews/id
+
 
 # Filtrar por reseña
 https://localhost/tucarpetalocal/TPE2-REST/api/reviews?filter=:registro
 
-# Paginacion
+# Obtener las reseñas descendentemente por id.
+http://localhost/tucarpetalocal/TPE2-REST/api/reviews?order=asc/desc
 
-http://localhost/tucarpetalocal/TPE2-REST/api/reviews?sortby=campoelegido&order=asc o desc
+# Obtener las reseñas descendentemente por campo.
+http://localhost/tucarpetalocal/TPE2-REST/api/reviews?sortby=campo&order=asc/desc
 
-//Ejemplos de codigos...
+# Paginacion de reseñas
+ 
+http://localhost/tucarpetalocal/TPE2-REST/api/reviews?page=:numero&limit=numero 
+
+# Ordenar y paginar
+
+http://localhost/tucarpetalocal/TPE2-REST/api/reviews?sortby=campo&order=asc/desc&page=:numero&limit=numero 
+
+# Filtrar y Ordenar
+
+http://localhost/tucarpetalocal/TPE2-REST/api/reviews?filter=:registro&sortby=campo&order=asc/desc
+
+# Filtrar y paginar
+
+http://localhost/tucarpetalocal/TPE2-REST/api/reviews?filter=:registro&page=:numero&limit=numero 
+
+# Filtrar, Ordenar y Paginar
+
+http://localhost/tucarpetalocal/TPE2-REST/api/reviews?filter=:registro&sortby=campo&spage=numero&limit=numero 
+
+//Ejemplos de codigos 200, etc...
 
 
