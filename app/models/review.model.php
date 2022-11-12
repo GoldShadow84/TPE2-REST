@@ -9,6 +9,18 @@ class ReviewModel {
         $this->db = new PDO('mysql:host=localhost;'.'dbname=db_series;charset=utf8', 'root', '');
     }
 
+
+    //obtener todas las reseñas
+    public function getAll() { 
+        $query = $this->db->prepare("SELECT id_review, author, comment, name, id_Serie_fk FROM reviews a INNER JOIN serie b ON a.id_Serie_fk = b.id_serie");
+        $query->execute();
+
+        $reviews = $query->fetchAll(PDO::FETCH_OBJ);
+
+        return $reviews;
+    }
+
+
     //obtener informacion de una reseña en particular, segun su id
     public function get($id) {
         // 1. abro conexión a la DB
@@ -25,23 +37,6 @@ class ReviewModel {
         return $review;
     }
 
-    public function makeAll($sentence = null, $verifyfilter = null) {
-
-        $l = "%";
-
-        $query = $this->db->prepare($sentence);
-
-        if($verifyfilter) {
-            $query->execute([$verifyfilter . $l]);
-        }
-        else {
-            $query->execute();
-        }
-
-        $review = $query->fetchAll(PDO::FETCH_OBJ); 
-        
-        return $review;
-    }
 
     //añadir una nueva reseña
     public function insert($author, $comment, $id_serie) {
@@ -71,7 +66,7 @@ class ReviewModel {
         $error = false;
 
         try {
-            $query = $this->db->prepare('UPDATE reviews SET author = ?, comment = ?, id_Serie_fk = ? WHERE id_review = ?');
+            $query = $this->db->prepare("UPDATE reviews SET author = ?, comment = ?, id_Serie_fk = ? WHERE id_review = ?");
 
             $query->execute([$author, $comment, $id_serie, $id]);
         }
@@ -80,6 +75,68 @@ class ReviewModel {
         }
 
         return $error;
+    }
+
+    //filtrar por nombre de serie en la tabla reseñas
+
+    function filterByName($filter = null) {
+        $percent = "%"; //para concatenar con la variable filter
+
+        $query = $this->db->prepare("SELECT id_review, author, comment, name, id_Serie_fk FROM reviews a INNER JOIN serie b ON a.id_Serie_fk = b.id_serie WHERE name LIKE ?");
+
+        $query->execute([$filter . $percent]);
+
+        $reviews = $query->fetchAll(PDO::FETCH_OBJ);
+
+        return $reviews;
+    }
+
+    //Ordenar solo por id
+
+    function orderById($order = null) {  
+        $query = $this->db->prepare("SELECT id_review, author, comment, name, id_Serie_fk FROM reviews a INNER JOIN serie b ON a.id_Serie_fk = b.id_serie ORDER BY id_review $order");
+
+        $query->execute();
+
+        $reviews = $query->fetchAll(PDO::FETCH_OBJ);
+
+        return $reviews;
+    }
+
+    //Ordenar por Campo
+
+    function orderByField($sortby = null, $order = null) {  
+        $query = $this->db->prepare("SELECT id_review, author, comment, name, id_Serie_fk FROM reviews a INNER JOIN serie b ON a.id_Serie_fk = b.id_serie ORDER BY $sortby $order");
+
+        $query->execute();
+
+        $reviews = $query->fetchAll(PDO::FETCH_OBJ);
+
+        return $reviews;
+    }
+
+    //Paginar las reseñas
+
+    function paginate($limit = null, $offset = null) {
+        $query = $this->db->prepare("SELECT id_review, author, comment, name, id_Serie_fk FROM reviews a INNER JOIN serie b ON a.id_Serie_fk = b.id_serie LIMIT $limit OFFSET $offset");
+
+        $query->execute();
+
+        $reviews = $query->fetchAll(PDO::FETCH_OBJ);
+
+        return $reviews;
+    }
+
+    //Ordenar y Paginar las reseñas
+
+    function OrderAndPaginate($sortby = null, $order = null, $limit = null, $offset = null) {
+        $query = $this->db->prepare("SELECT id_review, author, comment, name, id_Serie_fk FROM reviews a INNER JOIN serie b ON a.id_Serie_fk = b.id_serie ORDER BY $sortby $order LIMIT $limit OFFSET $offset");
+
+        $query->execute();
+
+        $reviews = $query->fetchAll(PDO::FETCH_OBJ);
+
+        return $reviews;
     }
 
 } 
