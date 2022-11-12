@@ -40,16 +40,6 @@ class ReviewApiController {
 
         $paramers = $this->paramers(); //evitar inyecciones sql
         
-        //variables creadas con valor nulo, para evitar warnings de variable indefinida, en caso de que no se utilice en alguno de los if.
-
-        $filter = null;
-        $sortby = null;
-        $order = null;
-        $page = null;
-        $limit = null;
-        $start = null;
-        
-   
         //ninguno
        if(!isset($_GET['filter']) && !isset($_GET['sortby']) && !isset($_GET['order']) && !isset($_GET['page']) && !isset($_GET['limit'])) {
 
@@ -66,9 +56,9 @@ class ReviewApiController {
                 $this->view->response($reviews);
             }
             else {
-                $this->showErrorFilter();
+                $this->showErrorNotContent();
             }
-            
+
         }  //ordenar por id
         else if(isset($_GET['order']) && !isset($_GET['sortby']) && !isset($_GET['filter']) && !isset($_GET['page']) && !isset($_GET['limit'])) {
             $order = $_GET['order'];
@@ -88,8 +78,6 @@ class ReviewApiController {
         } //ordenar por campo
         else if(isset($_GET['order']) && isset($_GET['sortby']) && !isset($_GET['filter']) && !isset($_GET['page']) && !isset($_GET['limit'])) {
 
-
-            if(isset($_GET['order']) && isset($_GET['sortby'])) {
                 $sortby = $_GET['sortby'];
                 $order = $_GET['order'];
 
@@ -103,10 +91,7 @@ class ReviewApiController {
                 else {
                     $this->showErrorParams();
                 }
-            }
-            else {
-                $this->showErrorIncomplete();
-            }
+
 
         } //paginar
         else if(isset($_GET['page']) && isset($_GET['limit']) && !isset($_GET['order']) && !isset($_GET['sortby']) && !isset($_GET['filter'])) {
@@ -155,8 +140,7 @@ class ReviewApiController {
             if(is_numeric($page) && (is_numeric($limit))) {
 
                     if($page > 0 && $limit > 0) { //verificar que el valor ingresado sea minimo 1.
-
-                        if(isset($params[$sortby]) && isset($params['order'])){
+                        if(isset($paramers[$sortby]) && isset($paramers[$order])){
                             //calcular cantidad de paginas total
                             $all = $this->model->getAll(); //obtiene todas las reseñas
                             $pages = count($all); //obtiene el total de valores
@@ -165,7 +149,7 @@ class ReviewApiController {
                         
                             $offset = ($page -1) *  $limit;
         
-                            $reviews = $this->model->OrderAndPaginate($sortby, $order, $limit, $offset);
+                            $reviews = $this->model->orderAndPaginate($sortby, $order, $limit, $offset);
         
                             if($reviews) {
                                 $this->view->response($reviews);
@@ -192,10 +176,18 @@ class ReviewApiController {
             $sortby = $_GET['sortby'];
             $order = $_GET['order'];
 
-            $ordering = "ORDER BY $sortby $order "; 
-
             if(isset($paramers[$sortby]) && isset($paramers[$order])) { //solo si los campos existen en la tabla se arma la sentencia con las variables
-                
+                $reviews = $this->model->filterAndOrder($sortby, $order, $filter);
+
+                    if($reviews) {
+                        $this->view->response($reviews);
+                    }
+                    else {
+                        $this->showErrorNotContent();
+                    }
+            }
+            else {
+                $this->showErrorParams();
             }
 
         }//filtrar y paginar
@@ -204,14 +196,31 @@ class ReviewApiController {
             $limit = $_GET['limit'];
             $filter = $_GET['filter'];
 
-                if (is_numeric($page) && (is_numeric($limit))) {
+            //los valores deben ser numeros
+             if (is_numeric($page) && (is_numeric($limit))) {
 
-                    $start = ($page -1) *  $limit;
+                    if($page > 0 && $limit > 0) { //verificar que el valor ingresado sea minimo 1.
+                        
+                        $offset = ($page -1) *  $limit;
 
-                    $paginate =  "LIMIT $limit OFFSET $start ";
+                        $reviews = $this->model->filterAndPaginate($filter, $limit, $offset);
 
-             
+                        if($reviews) {
+                            
+                            $this->view->response($reviews);
+                        }
+                        else {
+                            $this->showErrorNotContent();
+                        }
+                    }
+                    else {
+                        $this->showErrorMinNum(); 
+                    }
                 }
+                else {
+                    $this->showErrorNaN();
+                }
+
         }//filtrar, ordenar y paginar
         else if(isset($_GET['filter']) && isset($_GET['order']) && isset($_GET['sortby']) && isset($_GET['page']) && isset($_GET['limit'])) {
             
@@ -223,97 +232,49 @@ class ReviewApiController {
 
             if(isset($paramers[$sortby]) && isset($paramers[$order]) && is_numeric($page) && (is_numeric($limit))) { //solo si los campos existen en la tabla se arma la sentencia con las variables y los valores de page y limit son numeros, se cumplen las condiciones.
 
-                $start = ($page -1) *  $limit;
 
-                $ordering = "ORDER BY $sortby $order "; 
-                $paginate =  "LIMIT $limit OFFSET $start ";
+                    if($page > 0 && $limit > 0) { //verificar que el valor ingresado sea minimo 1.
+                        
+                        $offset = ($page -1) *  $limit;
 
+                        $reviews = $this->model->makeAll($filter, $sortby, $order, $offset, $limit);
+
+                        if($reviews) {
+                            $this->view->response($reviews);
+                        }
+                        else {
+                            $this->showErrorNotContent();
+                        }
+                    }
+                    else {
+                        $this->showErrorMinNum(); 
+                    }
            
             }
-
-        }
-
-        
-    }
-
-    public function getReviewsssss() {
-        $paramers = $this->paramers(); //evitar inyecciones sql
-        
-        //variables creadas con valor nulo, para evitar warnings de variable indefinida, en caso de que no se utilice en alguno de los if.
-
-        $filter = null;
-        $sortby = null;
-        $order = null;
-        $page = null;
-        $limit = null;
-        $start = null;
-        
-   
-        //ninguno
-        if(!isset($_GET['filter']) && !isset($_GET['sortby']) && !isset($_GET['order']) && !isset($_GET['page']) && !isset($_GET['limit'])) {
-
-            $reviews = $this->model->getAll();
-
-            $this->view->response($reviews);
-
-        }//filtrar 
-        else if(isset($_GET['filter']) && !isset($_GET['sortby']) && !isset($_GET['order']) && !isset($_GET['page']) && !isset($_GET['limit'])) {
-            $filter = $_GET['filter'];
-            
-            $reviews = $this->model->filterByName($filter);
-            if($reviews) {
-                $this->view->response($reviews);
-            }
-            else {
-                $this->showErrorFilter();
-            }
-        }  //ordenar por id
-        else if(isset($_GET['order']) && !isset($_GET['sortby']) && !isset($_GET['filter']) && !isset($_GET['page']) && !isset($_GET['limit'])) {
-            $order = $_GET['order'];
-
-            if(isset($paramers[$order])) { //solo si los campos existen en la tabla
-                $order = $_GET['order'];
-
-                $reviews = $this->model->orderById($order);
-    
-                $this->view->response($reviews);
-                
-            }
-            else {
+            else if(!isset($paramers[$sortby]) || !isset($paramers[$order])){
                 $this->showErrorParams();
-             }
-            
-        } //ordenar por campo 
-        else if(isset($_GET['order']) && isset($_GET['sortby']) && !isset($_GET['filter']) && !isset($_GET['page']) && !isset($_GET['limit'])) {
-
-            if(isset($_GET['order']) && isset($_GET['sortby'])) {
-                $sortby = $_GET['sortby'];
-                $order = $_GET['order'];
-
-                if(isset($paramers[$sortby]) && isset($paramers[$order])) {
-
-                    $reviews = $this->model->orderByField($sortby, $order);
-        
-                    $this->view->response($reviews);
-                    
-                }
-                else {
-                    $this->showErrorParams();
-                }
             }
-            else {
-                $this->showErrorIncomplete();
+            else if(!is_numeric($page) || !is_numeric($limit)) {
+                $this->showErrorNaN();
             }
+
+        }   //si solo esta sortby, mostrar error.
+        else if(!isset($_GET['filter']) && isset($_GET['sortby']) || isset($_GET['order']) && !isset($_GET['page']) && !isset($_GET['limit'])) {
+            $this->showErrorIncomplete();
+
+        }   //si solo esta limit o page, mostrar error.
+        else if(!isset($_GET['filter']) && !isset($_GET['sortby']) && !isset($_GET['order']) && isset($_GET['page']) || isset($_GET['limit'])) {
+            $this->showErrorIncomplete();
             
-        } 
-        else if(isset($_GET['order']) && isset($_GET['sortby']) && isset($_GET['filter']) && !isset($_GET['page']) && !isset($_GET['limit'])) {
-            echo "holaaa";
+        }   //si se usa todo, pero falta page o limit, o solo esta sortby, mostrar error
+        else if(isset($_GET['filter']) && isset($_GET['order']) || isset($_GET['sortby']) && isset($_GET['page']) || isset($_GET['limit'])) {
+            $this->showErrorIncomplete();
         }
-
-
+            
 
 
     }
+
 
     //obtener solo una reseña por id
 
@@ -386,7 +347,7 @@ class ReviewApiController {
 
     //funciones de error
 
-    public function showErrorFilter() {
+    public function showErrorNotContent() {
         $this->view->response("No se ha encontrado contenido.", 400);
         die();
     }

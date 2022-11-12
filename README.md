@@ -7,13 +7,13 @@
 El endpoint de la API es: http://localhost/tucarpetalocal/chocolate-rest/api/reviews
 
 # Obtener todas las reseñas:
-http://localhost/tucarpetalocal/TPE2-REST/api/reviews.
+Method: GET, URL: http://localhost/tucarpetalocal/TPE2-REST/api/reviews.
 
 # Obtener una reseña:
-http://localhost/tucarpetalocal/TPE2-REST/api/reviews/id de reseña
+Method: GET, URL: http://localhost/tucarpetalocal/TPE2-REST/api/reviews/id de reseña
 
 # Crear una nueva reseña:
- verbo http POST + http://localhost/tucarpetalocal/TPE2-REST/api/reviews
+ Method: POST, URL: http://localhost/tucarpetalocal/TPE2-REST/api/reviews
 
 Agregar BODY
 Ejemplo:
@@ -23,46 +23,44 @@ Ejemplo:
     "id_Serie": "11"
   }
 
-
  # Editar una nueva reseña:
 
- verbo http PUT + http://localhost/tucarpetalocal/TPE2-REST/api/reviews/id
+ Method: PUT, URL: http://localhost/tucarpetalocal/TPE2-REST/api/reviews/id
 
+Agregar BODY
+Ejemplo:
+  {
+    "author": "name",
+    "comment": "just a great and awesome spin off, like breaking bad or even better.",
+    "id_Serie": "11"
+  }
 
 # Eliminar una reseña:
- verbo http DELETE + http://localhost/tucarpetalocal/TPE2-REST/api/reviews/id
-
-
-Verbo http GET:
+ Method: DELETE, URL: http://localhost/tucarpetalocal/TPE2-REST/api/reviews/id
 
 # Filtrar por nombre, en reseñas
-https://localhost/tucarpetalocal/TPE2-REST/api/reviews?filter=:registro
+Method: GET, URL: https://localhost/tucarpetalocal/TPE2-REST/api/reviews?filter=:registro
 
 # Obtener las reseñas descendentemente por id.
-http://localhost/tucarpetalocal/TPE2-REST/api/reviews?order=asc/desc
+Method: GET, URL: http://localhost/tucarpetalocal/TPE2-REST/api/reviews?order=asc/desc
 
 # Obtener las reseñas descendentemente por campo.
-http://localhost/tucarpetalocal/TPE2-REST/api/reviews?sortby=campo&order=asc/desc
+Method: GET, URL: http://localhost/tucarpetalocal/TPE2-REST/api/reviews?sortby=campo&order=asc/desc
 
 # Paginacion de reseñas
- 
-http://localhost/tucarpetalocal/TPE2-REST/api/reviews?page=:numero&limit=numero 
+Method: GET, URL: http://localhost/tucarpetalocal/TPE2-REST/api/reviews?page=:numero&limit=numero 
 
 # Ordenar y paginar
-
-http://localhost/tucarpetalocal/TPE2-REST/api/reviews?sortby=campo&order=asc/desc&page=:numero&limit=numero 
+Method: GET, URL: http://localhost/tucarpetalocal/TPE2-REST/api/reviews?sortby=campo&order=asc/desc&page=:numero&limit=numero 
 
 # Filtrar y Ordenar
-
-http://localhost/tucarpetalocal/TPE2-REST/api/reviews?filter=:registro&sortby=campo&order=asc/desc
+Method: GET, URL: http://localhost/tucarpetalocal/TPE2-REST/api/reviews?filter=:registro&sortby=campo&order=asc/desc
 
 # Filtrar y paginar
-
-http://localhost/tucarpetalocal/TPE2-REST/api/reviews?filter=:registro&page=:numero&limit=numero 
+Method: GET, URL: http://localhost/tucarpetalocal/TPE2-REST/api/reviews?filter=:registro&page=:numero&limit=numero 
 
 # Filtrar, Ordenar y Paginar
-
-http://localhost/tucarpetalocal/TPE2-REST/api/reviews?filter=:registro&sortby=campo&spage=numero&limit=numero 
+Method: GET, URL: http://localhost/tucarpetalocal/TPE2-REST/api/reviews?filter=:registro&sortby=campo&spage=numero&limit=numero 
 
 //Ejemplos de codigos 200, etc...
 

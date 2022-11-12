@@ -129,10 +129,46 @@ class ReviewModel {
 
     //Ordenar y Paginar las reseñas
 
-    function OrderAndPaginate($sortby = null, $order = null, $limit = null, $offset = null) {
+    function orderAndPaginate($sortby = null, $order = null, $limit = null, $offset = null) {
         $query = $this->db->prepare("SELECT id_review, author, comment, name, id_Serie_fk FROM reviews a INNER JOIN serie b ON a.id_Serie_fk = b.id_serie ORDER BY $sortby $order LIMIT $limit OFFSET $offset");
 
         $query->execute();
+
+        $reviews = $query->fetchAll(PDO::FETCH_OBJ);
+
+        return $reviews;
+    }
+
+    function filterAndOrder($sortby = null, $order = null, $filter = null) {
+        $percent = "%"; //para concatenar con la variable filter
+
+        $query = $this->db->prepare("SELECT id_review, author, comment, name, id_Serie_fk FROM reviews a INNER JOIN serie b ON a.id_Serie_fk = b.id_serie WHERE name LIKE ?ORDER BY $sortby $order");
+
+        $query->execute([$filter . $percent]);
+
+        $reviews = $query->fetchAll(PDO::FETCH_OBJ);
+
+        return $reviews;
+    }
+
+    function filterAndPaginate($filter = null, $limit = null, $offset = null) {
+        $percent = "%"; //para concatenar con la variable filter
+
+        $query = $this->db->prepare("SELECT id_review, author, comment, name, id_Serie_fk FROM reviews a INNER JOIN serie b ON a.id_Serie_fk = b.id_serie WHERE name LIKE ?LIMIT $limit OFFSET $offset");
+
+        $query->execute([$filter . $percent]);
+
+        $reviews = $query->fetchAll(PDO::FETCH_OBJ);
+
+        return $reviews;
+    }
+
+    function makeAll($filter = null, $sortby= null, $order = null, $offset = null, $limit = null) {
+        $percent = "%"; //para concatenar con la variable filter
+
+        $query = $this->db->prepare("SELECT id_review, author, comment, name, id_Serie_fk FROM reviews a INNER JOIN serie b ON a.id_Serie_fk = b.id_serie WHERE name LIKE ? ORDER BY $sortby $order LIMIT $limit OFFSET $offset");
+
+        $query->execute([$filter . $percent]);
 
         $reviews = $query->fetchAll(PDO::FETCH_OBJ);
 
