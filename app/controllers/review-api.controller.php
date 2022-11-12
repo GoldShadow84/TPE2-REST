@@ -68,6 +68,7 @@ class ReviewApiController {
             else {
                 $this->showErrorFilter();
             }
+            
         }  //ordenar por id
         else if(isset($_GET['order']) && !isset($_GET['sortby']) && !isset($_GET['filter']) && !isset($_GET['page']) && !isset($_GET['limit'])) {
             $order = $_GET['order'];
@@ -106,6 +107,7 @@ class ReviewApiController {
             else {
                 $this->showErrorIncomplete();
             }
+
         } //paginar
         else if(isset($_GET['page']) && isset($_GET['limit']) && !isset($_GET['order']) && !isset($_GET['sortby']) && !isset($_GET['filter'])) {
             $page = $_GET['page'];
@@ -114,13 +116,13 @@ class ReviewApiController {
             //los valores deben ser numeros
              if (is_numeric($page) && (is_numeric($limit))) {
 
-                    //calcular cantidad de paginas total
+                    if($page > 0 && $limit > 0) { //verificar que el valor ingresado sea minimo 1.
+
+                     //calcular cantidad de paginas total
                     $all = $this->model->getAll(); //obtiene todas las reseñas
                     $pages = count($all); //obtiene el total de valores
                     $pages /= $limit; //divide el total de valores por el limite usado.
                     $pages = ceil($pages); //redondear cifra para arriba.
-
-                    if($page > 0 && $limit > 0) { //verificar que el valor ingresado sea minimo 1.
                         
                         $offset = ($page -1) *  $limit;
 
@@ -140,6 +142,7 @@ class ReviewApiController {
                 else {
                     $this->showErrorNaN();
                 }
+
         } //ordenar y paginar
         else if (isset($_GET['order']) && isset($_GET['sortby']) && isset($_GET['page']) && isset($_GET['limit']) && !isset($_GET['filter'])) {
             
@@ -149,30 +152,40 @@ class ReviewApiController {
             $limit = $_GET['limit'];
 
             //los valores deben ser numeros
-            if(is_numeric($page) && (is_numeric($limit)) && isset($_GET['order']) && isset($_GET['sortby'])) {
-                //calcular cantidad de paginas total
-                    $all = $this->model->getAll(); //obtiene todas las reseñas
-                    $pages = count($all); //obtiene el total de valores
-                    $pages /= $limit; //divide el total de valores por el limite usado.
-                    $pages = ceil($pages); //redondear cifra para arriba.
+            if(is_numeric($page) && (is_numeric($limit))) {
 
                     if($page > 0 && $limit > 0) { //verificar que el valor ingresado sea minimo 1.
-                    
-                        $offset = ($page -1) *  $limit;
-    
-                        $reviews = $this->model->OrderAndPaginate($sortby, $order, $limit, $offset);
-    
-                        if($reviews) {
-                            $this->view->response($reviews);
+
+                        if(isset($params[$sortby]) && isset($params['order'])){
+                            //calcular cantidad de paginas total
+                            $all = $this->model->getAll(); //obtiene todas las reseñas
+                            $pages = count($all); //obtiene el total de valores
+                            $pages /= $limit; //divide el total de valores por el limite usado.
+                            $pages = ceil($pages); //redondear cifra para arriba.
+                        
+                            $offset = ($page -1) *  $limit;
+        
+                            $reviews = $this->model->OrderAndPaginate($sortby, $order, $limit, $offset);
+        
+                            if($reviews) {
+                                $this->view->response($reviews);
+                            }
+                            else {
+                                $this->showErrorPages($pages);
+                            }
                         }
                         else {
-                            $this->showErrorPages($pages);
+                            $this->showErrorParams();
                         }
                     }
                     else {
                         $this->showErrorMinNum(); 
                     }
                 }
+                else {
+                    $this->showErrorNaN();
+                }
+
         }//filtrar y ordenar
         else if(isset($_GET['filter']) && isset($_GET['order']) && isset($_GET['sortby']) && !isset($_GET['page']) && !isset($_GET['limit'])) {
             $filter = $_GET['filter'];
@@ -184,6 +197,7 @@ class ReviewApiController {
             if(isset($paramers[$sortby]) && isset($paramers[$order])) { //solo si los campos existen en la tabla se arma la sentencia con las variables
                 
             }
+
         }//filtrar y paginar
         else if(isset($_GET['filter']) && isset($_GET['page']) && isset($_GET['limit']) && !isset($_GET['order']) && !isset($_GET['sortby'])) {
             $page = $_GET['page'];
