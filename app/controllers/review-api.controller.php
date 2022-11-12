@@ -265,16 +265,13 @@ class ReviewApiController {
         }   //si solo esta limit o page, mostrar error.
         else if(!isset($_GET['filter']) && !isset($_GET['sortby']) && !isset($_GET['order']) && isset($_GET['page']) || isset($_GET['limit'])) {
             $this->showErrorIncomplete();
-            
+
         }   //si se usa todo, pero falta page o limit, o solo esta sortby, mostrar error
         else if(isset($_GET['filter']) && isset($_GET['order']) || isset($_GET['sortby']) && isset($_GET['page']) || isset($_GET['limit'])) {
             $this->showErrorIncomplete();
         }
             
-
-
     }
-
 
     //obtener solo una reseña por id
 
@@ -330,13 +327,16 @@ class ReviewApiController {
         $id = $params[':ID'];
         $review = $this->getData();
 
-        if (empty($review->author) || empty($review->comment) || empty($review->id_Serie)) {
+        if (empty($review->author) || empty($review->comment) || empty($review->id_Serie_fk)) {
             $this->view->response("Complete los datos.", 400);
      
         } else {
-            $error = $this->model->update($id, $review->author, $review->comment, $review->id_Serie);
-            if($error) {
-                $this->view->response("Id_serie incorrecto.", 400);
+            $count = $this->model->update($id, $review->author, $review->comment, $review->id_Serie_fk);
+            if($count == 0) { //si ninguna fila fue afectada, el id de la reseña no existe
+                $this->view->response("El id no esta registrado.", 400);
+            }
+            else if($count == "error") {
+                $this->view->response("El id de la serie no existe.", 400);
             }
             else {
                 $this->view->response("La reseña se modifico con éxito con el id=$id.", 201);

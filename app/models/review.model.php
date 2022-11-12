@@ -39,13 +39,13 @@ class ReviewModel {
 
 
     //añadir una nueva reseña
-    public function insert($author, $comment, $id_serie) {
+    public function insert($author, $comment, $id_serie_fk) {
     
         $error = false;
 
         try {
             $query = $this->db->prepare("INSERT INTO reviews (author,  comment, id_Serie_fk) VALUES (?, ?, ?)");
-            $query->execute([$author, $comment, $id_serie]);
+            $query->execute([$author, $comment, $id_serie_fk]);
         }
         catch(PDOException $e) {
             $error = true;
@@ -62,19 +62,18 @@ class ReviewModel {
     }
 
     //actualizar una reseña segun su id
-   public function update($id, $author, $comment, $id_serie) {
-        $error = false;
+   public function update($id, $author, $comment, $id_serie_fk) {
 
         try {
             $query = $this->db->prepare("UPDATE reviews SET author = ?, comment = ?, id_Serie_fk = ? WHERE id_review = ?");
-
-            $query->execute([$author, $comment, $id_serie, $id]);
+            $query->execute([$author, $comment, $id_serie_fk, $id]);
+            $count = $query->rowCount(); //obtener cantidad de filas afectadas
         }
         catch(PDOException $e) {
-            $error = true;
+            $count = "error";
         }
 
-        return $error;
+        return $count;
     }
 
     //filtrar por nombre de serie en la tabla reseñas
