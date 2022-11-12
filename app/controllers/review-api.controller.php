@@ -308,11 +308,11 @@ class ReviewApiController {
         $review = $this->getData();
 
         if (empty($review->author) || empty($review->comment) || empty($review->id_Serie_fk)) {
-            $this->view->response("Complete los datos", 400);
+            $this->view->response("Complete los datos", 404);
         } else {
             $error = $this->model->insert($review->author, $review->comment, $review->id_Serie_fk);
             if($error) {
-                $this->view->response("Id_serie incorrecto.", 400);
+                $this->view->response("Id_serie incorrecto.", 404);
             }
             else {
                 $this->view->response("La reseña se insertó con éxito.", 201);
@@ -328,15 +328,15 @@ class ReviewApiController {
         $review = $this->getData();
 
         if (empty($review->author) || empty($review->comment) || empty($review->id_Serie_fk)) {
-            $this->view->response("Complete los datos.", 400);
+            $this->view->response("Complete los datos.", 404);
      
         } else {
             $count = $this->model->update($id, $review->author, $review->comment, $review->id_Serie_fk);
             if($count == 0) { //si ninguna fila fue afectada, el id de la reseña no existe
-                $this->view->response("El id no esta registrado.", 400);
+                $this->view->response("El id no esta registrado.", 404);
             }
             else if($count == "error") {
-                $this->view->response("El id de la serie no existe.", 400);
+                $this->view->response("El id de la serie no existe.", 404);
             }
             else {
                 $this->view->response("La reseña se modifico con éxito con el id=$id.", 201);
@@ -353,22 +353,22 @@ class ReviewApiController {
     }
 
     public function showErrorParams() {
-        $this->view->response("Parametros incorrectos.", 400);
+        $this->view->response("Parametros incorrectos.", 404);
         die();
     }
 
     public function showErrorIncomplete() {
-        $this->view->response("Falta algun parametro para la peticion que esta solicitando.", 400);
+        $this->view->response("Falta algun parametro para la peticion que esta solicitando.", 404);
         die();
     }
 
     public function showErrorNaN() {
-        $this->view->response("Debe introducir un numero.", 400);
+        $this->view->response("Debe introducir un numero.", 404);
         die();
     }
 
     public function showErrorMinNum() {
-        $this->view->response("Debe introducir un valor mayor a cero.", 400);
+        $this->view->response("Debe introducir un valor mayor a cero.", 404);
         die();
     }
 

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 10-11-2022 a las 12:27:51
+-- Tiempo de generación: 13-11-2022 a las 00:35:34
 -- Versión del servidor: 10.4.24-MariaDB
 -- Versión de PHP: 8.1.6
 
@@ -51,7 +51,6 @@ INSERT INTO `platform` (`id_platform`, `company`, `price`) VALUES
 CREATE TABLE `reviews` (
   `id_review` int(11) NOT NULL,
   `author` varchar(45) NOT NULL,
-  `about` varchar(45) NOT NULL,
   `comment` varchar(500) NOT NULL,
   `id_Serie_fk` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -60,22 +59,24 @@ CREATE TABLE `reviews` (
 -- Volcado de datos para la tabla `reviews`
 --
 
-INSERT INTO `reviews` (`id_review`, `author`, `about`, `comment`, `id_Serie_fk`) VALUES
-(1, 'Sanchezzzzzzzzzzzzzzzzzzz', 'betteraaaa call saullllllllllllllllll', 'just a great and awesome spin off, like breaking bad or even betterraaaaaaaaarrrrrrrrrrrrrrrrrrrrrrrr.', 16),
-(5, 'dasdasdas', 'asdsadas', 'asdasd', 14),
-(6, 'dasdasdas', 'asdsadas', 'asdasd', 14),
-(7, 'hjghjghjghj', 'better call saul', 'dfasdfsdfsdfsd', 11),
-(8, 'hjghjghjghj', 'better call saul', 'dfasdfsdfsdfsd', 11),
-(10, 'Sanchez', 'better call saul', 'just a great and awesome spin off, like breaking bad or even better.', 11),
-(11, 'Sanchez', 'better call saul', 'just a great and awesome spin off, like breaking bad or even better.', 11),
-(12, 'Sanchez', 'better call saul', 'just a great and awesome spin off, like breaking bad or even better.', 11),
-(14, 'Sanchez', 'better call saul', 'just a great and awesome spin off, like breaking bad or even better.', 14),
-(15, 'Sanchez', 'better call saul', 'just a great and awesome spin off, like breaking bad or even better.', 14),
-(16, 'Sanchez', 'better call saul', 'just a great and awesome spin off, like breaking bad or even better.', 14),
-(17, 'Sanchez', 'better call saul', 'just a great and awesome spin off, like breaking bad or even better.', 14),
-(20, 'Sanchez', 'better call saul', 'just a great and awesome spin off, like breaking bad or even better.', 11),
-(21, 'Sanchezzz', 'better call saul', 'just a great and awesome spin off, like breaking bad or even better.', 11),
-(25, 'Sanchezzz', 'better call saul', 'just a great and awesome spin off, like breaking bad or even better.', 11);
+INSERT INTO `reviews` (`id_review`, `author`, `comment`, `id_Serie_fk`) VALUES
+(1, 'Sanchezzzzzzzzzzzzzzzzzzz', 'just a great and awesome spin off, like breaking bad or even betterraaaaaaaaarrrrrrrrrrrrrrrrrrrrrrrr.', 16),
+(5, 'dasdasdas', 'asdasd', 14),
+(6, 'dasdasdas', 'asdasd', 14),
+(7, 'hjghjghjghj', 'dfasdfsdfsdfsd', 11),
+(8, 'hjghjghjghj', 'dfasdfsdfsdfsd', 11),
+(10, 'Sanchez', 'just a great and awesome spin off, like breaking bad or even better.', 11),
+(11, 'Sanchez', 'just a great and awesome spin off, like breaking bad or even better.', 11),
+(12, 'Sanchez', 'just a great and awesome spin off, like breaking bad or even better.', 11),
+(14, 'Sanchez', 'just a great and awesome spin off, like breaking bad or even better.', 14),
+(15, 'Sanchez', 'just a great and awesome spin off, like breaking bad or even better.', 14),
+(16, 'Sanchez', 'just a great and awesome spin off, like breaking bad or even better.', 14),
+(17, 'Sanchez', 'just a great and awesome spin off, like breaking bad or even better.', 14),
+(20, 'Sanchez', 'just a great and awesome spin off, like breaking bad or even better.', 11),
+(21, 'Sanchezzz', 'just a great and awesome spin off, like breaking bad or even better.', 11),
+(25, 'Sanchezzz', 'just a great and awesome spin off, like breaking bad or even better.', 11),
+(26, 'Sanchezzz', 'just a great and awesome spin off, like breaking bad or even better.', 11),
+(27, 'Marcos', 'A great serie.', 16);
 
 -- --------------------------------------------------------
 
@@ -164,7 +165,7 @@ ALTER TABLE `platform`
 -- AUTO_INCREMENT de la tabla `reviews`
 --
 ALTER TABLE `reviews`
-  MODIFY `id_review` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `id_review` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- AUTO_INCREMENT de la tabla `serie`
