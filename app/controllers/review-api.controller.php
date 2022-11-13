@@ -311,70 +311,85 @@ class ReviewApiController {
 
     //insertar reseña
 
-    public function insertReview() {
+    public function verifyAndPost() {
         //si no se esta logeado, no se ejecuta la funcion
         if(!$this->authHelper->isLoggedIn()){
-            $this->view->response("No estas logeado", 401);
-            die();
+        $this->view->response("No estas logeado", 401);
+        die();
         }
-        
+
         $review = $this->getData();
 
-        if (empty($review->author) || empty($review->comment) || empty($review->id_Serie_fk)) {
+        if (empty($review->author) || empty($review->comment) || empty($review->name)) {
             $this->view->response("Complete los datos", 404);
-        } else {
-
-            //verificar que los datos ingresados correspondan con su tipo de dos en la base de datos.
-            if(is_numeric($review->author) || is_numeric($review->comment) || !is_int($review->id_Serie_fk)) {
-                $this->view->response("Verifique el tipo de datos que intenta enviar", 404);
-            }
-            else {
-                $count = $this->model->insert($review->author, $review->comment, $review->id_Serie_fk);
-
-                if($count != 0) {
-                    $this->view->response("La reseña se insertó con éxito.", 201);
-                }
-                else { //si ninguna fila fue afectada, el id_serie_fk es incorrecto
-                    $this->view->response("Id_serie_fk incorrecto.", 404);
-                }
-            }
-
-        
-
         }
-    } 
+        else {
+            //traer id_serie al que corresponde el nombre ingresado
+            $id_serie_fk = $this->model->verifyName($review->name);
 
-    //actualizar reseña
+            if($id_serie_fk) {
 
-      public function updateReview($params = null) {
-        //si no se esta logeado, no se ejecuta la funcion
-        if(!$this->authHelper->isLoggedIn()){
-            $this->view->response("No estas logeado", 401);
-            die();
-        }
+                $id_serie = $id_serie_fk->id_Serie_fk;
 
-        $id = $params[':ID'];
-        $review = $this->getData();
+                $id_serie = intval($id_serie); //convierte de string a int
 
-        if (empty($review->author) || empty($review->comment) || empty($review->id_Serie_fk)) {
-            $this->view->response("Complete los datos.", 404);
-            
-        } else {
-            if(is_numeric($review->author) || is_numeric($review->comment) || !is_int($review->id_Serie_fk)) {
-                $this->view->response("Verifique el tipo de datos que intenta enviar", 404);
-            }
-            else {
-                $count = $this->model->update($id, $review->author, $review->comment, $review->id_Serie_fk);
-
-                //si ninguna fila fue afectada.
-                if ($count == "0") {    
-                    $this->view->response("Error, revise que el id exista, los datos que intenta ingresar no sean incorrectos o iguales a la reseña que intenta modificar.", 404);
+                //verificar que los datos ingresados correspondan con su tipo de dos en la base de datos.
+                if(is_numeric($review->author) || is_numeric($review->comment) || is_numeric($review->name)) {
+                    $this->view->response("Verifique el tipo de datos que intenta enviar", 404);
                 }
                 else {
-                    $this->view->response("La reseña se modifico con éxito con el id=$id.", 201);
-                }
+                    $this->insertReview($review->author, $review->comment,  $id_serie);
+                } 
+            }
+            else {
+                $this->view->response("No existe una serie con ese nombre", 400);
             }
         }
+    }
+
+    public function insertReview($author  = null, $comment = null, $id_serie = null) {
+
+        $count = $this->model->insert($author, $comment, $id_serie);
+
+        if($count != 0) {
+            $this->view->response("La reseña se insertó con éxito.", 201);
+        }
+        else { //si ninguna fila fue afectada, el id_serie_fk es incorrecto
+            $this->view->response("Id_serie_fk incorrecto.", 404);
+        }
+    }
+            
+    //actualizar reseña
+
+    public function updateReview($params = null) {
+    //si no se esta logeado, no se ejecuta la funcion
+    if(!$this->authHelper->isLoggedIn()){
+        $this->view->response("No estas logeado", 401);
+        die();
+    }
+
+    $id = $params[':ID'];
+    $review = $this->getData();
+
+    if (empty($review->author) || empty($review->comment) || empty($review->id_Serie_fk)) {
+        $this->view->response("Complete los datos.", 404);
+        
+    } else {
+        if(is_numeric($review->author) || is_numeric($review->comment) || !is_int($review->id_Serie_fk)) {
+            $this->view->response("Verifique el tipo de datos que intenta enviar", 404);
+        }
+        else {
+            $count = $this->model->update($id, $review->author, $review->comment, $review->id_Serie_fk);
+
+            //si ninguna fila fue afectada.
+            if ($count == "0") {    
+                $this->view->response("Error, revise que el id exista, los datos que intenta ingresar no sean incorrectos o iguales a la reseña que intenta modificar.", 404);
+            }
+            else {
+                $this->view->response("La reseña se modifico con éxito con el id=$id.", 201);
+            }
+        }
+    }
     } 
  
     //funciones de error

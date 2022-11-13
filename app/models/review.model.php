@@ -29,15 +29,28 @@ class ReviewModel {
         return $review;
     }
 
-    //añadir una nueva reseña
+    //verifica que exista una serie con el nombre ingresado por el usuario
+    function verifyName($name = null) {
+        
+        $percent = "%"; //para concatenar con la variable filter
+
+        $query = $this->db->prepare("SELECT id_Serie_fk FROM reviews a INNER JOIN serie b ON a.id_Serie_fk = b.id_serie WHERE name LIKE ?");
+
+        $query->execute([$name . $percent]);
+
+        $id_serie_fk = $query->fetch(PDO::FETCH_OBJ);
+
+        return $id_serie_fk;
+    }
+
+   //añadir una nueva reseña
     function insert($author = null, $comment = null, $id_serie_fk = null) {
         $query = $this->db->prepare("INSERT INTO reviews (author,  comment, id_Serie_fk) VALUES (?, ?, ?)");
         $query->execute([$author, $comment, $id_serie_fk]);
         $count = $query->rowCount(); //obtener cantidad de filas afectadas
-        
         return $count;
     } 
-    
+        
     //borrar una reseña segun su id
     function delete($id = null) {
         $query = $this->db->prepare("DELETE FROM reviews WHERE id_review = ?");
@@ -46,15 +59,11 @@ class ReviewModel {
 
     //actualizar una reseña segun su id
     function update($id = null, $author = null, $comment = null, $id_serie_fk = null) {
-            try {
-                $query = $this->db->prepare("UPDATE reviews SET author = ?, comment = ?, id_Serie_fk = ? WHERE id_review = ?");
-                $query->execute([$author, $comment, $id_serie_fk, $id]);
-                $count = $query->rowCount(); //obtener cantidad de filas afectadas
-            }
-            catch(PDOException $e) {
-                $count = "error";
-            }
-
+         
+            $query = $this->db->prepare("UPDATE reviews SET author = ?, comment = ?, id_Serie_fk = ? WHERE id_review = ?");
+            $query->execute([$author, $comment, $id_serie_fk, $id]);
+            $count = $query->rowCount(); //obtener cantidad de filas afectadas
+    
             return $count;
         }
 
