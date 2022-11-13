@@ -318,7 +318,7 @@ class ReviewApiController {
         $review = $this->getData();
 
         if (empty($review->author) || empty($review->comment) || empty($review->name)) {
-            $this->view->response("Complete los datos", 404);
+            $this->view->response("Complete los datos", 400);
         }
         else {
 
@@ -358,9 +358,6 @@ class ReviewApiController {
         if($count != 0) {
             $this->view->response("La reseña se insertó con éxito.", 201);
         }
-        else { //si ninguna fila fue afectada, el id_serie_fk es incorrecto
-            $this->view->response("Id_serie_fk incorrecto.", 404);
-        }
     }
 
     public function verifyAndPut($params = null) {
@@ -374,7 +371,7 @@ class ReviewApiController {
         $review = $this->getData();
 
         if (empty($review->author) || empty($review->comment) || empty($review->name)) {
-            $this->view->response("Complete los datos", 404);
+            $this->view->response("Complete los datos", 400);
         }
         else {
 
@@ -415,7 +412,7 @@ class ReviewApiController {
 
         //si ninguna fila fue afectada.
         if ($count == "0") {    
-            $this->view->response("Error, revise que el id exista, los datos que intenta ingresar no sean incorrectos o iguales a la reseña que intenta modificar.", 404);
+            $this->view->response("Error, revise que el id exista, los datos que intenta ingresar no sean incorrectos o iguales a la reseña que intenta modificar.", 400);
         }
         else {
             $this->view->response("La reseña se modifico con éxito con el id=$id.", 201);
@@ -425,42 +422,42 @@ class ReviewApiController {
     //funciones de error
 
     public function showErrorNotContent() {
-        $this->view->response("No se ha encontrado contenido.", 400);
+        $this->view->response("No se ha encontrado contenido.", 404);
         die();
     }
 
     public function showErrorParams() {
-        $this->view->response("Parametros incorrectos.", 404);
+        $this->view->response("Parametros incorrectos.", 400);
         die();
     }
 
     public function showErrorIncomplete() {
-        $this->view->response("Falta algun parametro para la peticion que esta solicitando.", 404);
+        $this->view->response("Falta algun parametro para la peticion que esta solicitando.", 400);
         die();
     }
 
     public function showErrorNaN() {
-        $this->view->response("Debe introducir un numero.", 404);
+        $this->view->response("Debe introducir un numero.", 400);
         die();
     }
 
     public function showErrorMinNum() {
-        $this->view->response("Debe introducir un valor mayor a cero.", 404);
+        $this->view->response("Debe introducir un valor mayor a cero.", 400);
         die();
     }
 
     public function showErrorPages($pages = null) {
-        $this->view->response("Solo existen $pages paginas.", 400);
+        $this->view->response("Solo existen $pages paginas.", 404);
         die();
     }
 
     public function showErrorInvalidType() {
-        $this->view->response("Verifique el tipo de datos que intenta enviar.", 404);
+        $this->view->response("Verifique el tipo de datos que intenta enviar.", 400);
         die();
     }
 
     public function showErrorNotExist() {
-        $this->view->response("La Serie que esta buscando no existe o no se encuentra registrada.", 400);
+        $this->view->response("La Serie que esta buscando no existe o no se encuentra registrada.", 404);
         die();
     }
 
