@@ -58,10 +58,10 @@ class ReviewModel {
     }
 
     //actualizar una reseña segun su id
-    function update($id = null, $author = null, $comment = null, $id_serie_fk = null) {
-         
+    function update($id = null, $author = null, $comment = null, $id_serie = null) {
+
             $query = $this->db->prepare("UPDATE reviews SET author = ?, comment = ?, id_Serie_fk = ? WHERE id_review = ?");
-            $query->execute([$author, $comment, $id_serie_fk, $id]);
+            $query->execute([$author, $comment, $id_serie, $id]);
             $count = $query->rowCount(); //obtener cantidad de filas afectadas
     
             return $count;

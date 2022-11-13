@@ -294,8 +294,7 @@ class ReviewApiController {
     public function deleteReview($params = null) {
         //si no se esta logeado, no se ejecuta la funcion
         if(!$this->authHelper->isLoggedIn()){
-            $this->view->response("No estas logeado", 401);
-            die();
+            $this->showErrorNotLoggued();
         }
 
         $id = $params[':ID'];
@@ -309,13 +308,11 @@ class ReviewApiController {
         }
     }   
 
-    //insertar reseña
-
+    //verificar que exista la serie vinculada a la reseña nueva
     public function verifyAndPost() {
         //si no se esta logeado, no se ejecuta la funcion
         if(!$this->authHelper->isLoggedIn()){
-        $this->view->response("No estas logeado", 401);
-        die();
+            $this->showErrorNotLoggued();
         }
 
         $review = $this->getData();
@@ -324,26 +321,33 @@ class ReviewApiController {
             $this->view->response("Complete los datos", 404);
         }
         else {
-            //traer id_serie al que corresponde el nombre ingresado
-            $id_serie_fk = $this->model->verifyName($review->name);
 
-            if($id_serie_fk) {
+                if(!is_numeric($review->name)) {
+                    //traer id_serie al que corresponde el nombre ingresado
+                    $id_serie_fk = $this->model->verifyName($review->name);
 
-                $id_serie = $id_serie_fk->id_Serie_fk;
+                    if($id_serie_fk) {
 
-                $id_serie = intval($id_serie); //convierte de string a int
+                        $id_serie = $id_serie_fk->id_Serie_fk;
 
-                //verificar que los datos ingresados correspondan con su tipo de dos en la base de datos.
-                if(is_numeric($review->author) || is_numeric($review->comment) || is_numeric($review->name)) {
-                    $this->view->response("Verifique el tipo de datos que intenta enviar", 404);
+                        $id_serie = intval($id_serie); //convierte de string a int
+
+                        //verificar que los datos ingresados correspondan con su tipo de dos en la base de datos.
+                        if(is_numeric($review->author) || is_numeric($review->comment)) {
+                            $this->showErrorInvalidType();
+                        }
+                        else {
+                            $this->insertReview($review->author, $review->comment,  $id_serie);
+                        } 
+                    }
+                    else {
+                        $this->showErrorNotExist();
+                    }
                 }
-                else {
-                    $this->insertReview($review->author, $review->comment,  $id_serie);
-                } 
-            }
             else {
-                $this->view->response("No existe una serie con ese nombre", 400);
+                $this->showErrorInvalidType();
             }
+            
         }
     }
 
@@ -358,38 +362,64 @@ class ReviewApiController {
             $this->view->response("Id_serie_fk incorrecto.", 404);
         }
     }
+
+    public function verifyAndPut($params = null) {
+        //si no se esta logeado, no se ejecuta la funcion
+        if(!$this->authHelper->isLoggedIn()){
+            $this->showErrorNotLoggued();
+        }
+
+        $id = $params[':ID'];
+
+        $review = $this->getData();
+
+        if (empty($review->author) || empty($review->comment) || empty($review->name)) {
+            $this->view->response("Complete los datos", 404);
+        }
+        else {
+
+                if(!is_numeric($review->name)) {
+                    //traer id_serie al que corresponde el nombre ingresado
+                    $id_serie_fk = $this->model->verifyName($review->name);
+
+                    if($id_serie_fk) {
+
+                        $id_serie = $id_serie_fk->id_Serie_fk;
+
+                        $id_serie = intval($id_serie); //convierte de string a int
+
+                        //verificar que los datos ingresados correspondan con su tipo de dos en la base de datos.
+                        if(is_numeric($review->author) || is_numeric($review->comment)) {
+                            $this->showErrorInvalidType();
+                        }
+                        else {
+                            $this->updateReview($id, $review->author, $review->comment, $id_serie);
+                        } 
+                    }
+                    else {
+                        $this->showErrorNotExist();
+                    }
+                }
+            else {
+                $this->showErrorInvalidType();
+            }
+            
+        }
+    }
             
     //actualizar reseña
 
-    public function updateReview($params = null) {
-    //si no se esta logeado, no se ejecuta la funcion
-    if(!$this->authHelper->isLoggedIn()){
-        $this->view->response("No estas logeado", 401);
-        die();
-    }
-
-    $id = $params[':ID'];
-    $review = $this->getData();
-
-    if (empty($review->author) || empty($review->comment) || empty($review->id_Serie_fk)) {
-        $this->view->response("Complete los datos.", 404);
+    public function updateReview($id = null, $author = null, $comment =  null, $id_serie = null) {
         
-    } else {
-        if(is_numeric($review->author) || is_numeric($review->comment) || !is_int($review->id_Serie_fk)) {
-            $this->view->response("Verifique el tipo de datos que intenta enviar", 404);
+        $count = $this->model->update($id, $author, $comment, $id_serie);
+
+        //si ninguna fila fue afectada.
+        if ($count == "0") {    
+            $this->view->response("Error, revise que el id exista, los datos que intenta ingresar no sean incorrectos o iguales a la reseña que intenta modificar.", 404);
         }
         else {
-            $count = $this->model->update($id, $review->author, $review->comment, $review->id_Serie_fk);
-
-            //si ninguna fila fue afectada.
-            if ($count == "0") {    
-                $this->view->response("Error, revise que el id exista, los datos que intenta ingresar no sean incorrectos o iguales a la reseña que intenta modificar.", 404);
-            }
-            else {
-                $this->view->response("La reseña se modifico con éxito con el id=$id.", 201);
-            }
+            $this->view->response("La reseña se modifico con éxito con el id=$id.", 201);
         }
-    }
     } 
  
     //funciones de error
@@ -421,6 +451,21 @@ class ReviewApiController {
 
     public function showErrorPages($pages = null) {
         $this->view->response("Solo existen $pages paginas.", 400);
+        die();
+    }
+
+    public function showErrorInvalidType() {
+        $this->view->response("Verifique el tipo de datos que intenta enviar.", 404);
+        die();
+    }
+
+    public function showErrorNotExist() {
+        $this->view->response("La Serie que esta buscando no existe o no se encuentra registrada.", 400);
+        die();
+    }
+
+    public function showErrorNotLoggued() {
+        $this->view->response("No estas logeado.", 401);
         die();
     }
     

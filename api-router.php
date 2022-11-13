@@ -14,7 +14,7 @@ $router->addRoute('reviews', 'GET','ReviewApiController','getReviews');
 $router->addRoute('reviews/:ID', 'GET','ReviewApiController','getReview');
 $router->addRoute('reviews/:ID', 'DELETE', 'ReviewApiController', 'deleteReview');
 $router->addRoute('reviews', 'POST', 'ReviewApiController', 'verifyAndPost'); 
-$router->addRoute('reviews/:ID', 'PUT', 'ReviewApiController', 'updateReview'); 
+$router->addRoute('reviews/:ID', 'PUT', 'ReviewApiController', 'verifyAndPut'); 
 
 $router->addRoute("auth/token", 'GET', 'AuthApiController', 'getToken');
 
