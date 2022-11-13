@@ -81,8 +81,13 @@ Method: GET, URL: http://localhost/tucarpetalocal/TPE2-REST/api/reviews?filter=:
   El uso del codigo 400, se da cuando la solicitud hecha por el usuario es correcta, pero no se ha encontrado el contenido de reseñas solicitado.
   por ejemplo se utiliza cuando el dato por el que se desea filtrar en las reseñas no se encuentra, o se esta intentando ir hacia una pagina del paginado que no existe.
 
+#CODIGO 401
+
+#CODIGO 403
+
 # CODIGO 404
 
   El uso del codigo 404, se da cuando la solicitud por el usuario es invalida, la sintaxis, la uri o los parametros son incorrectos. 
   por ejemplo cuando se intenta crear una reseña con los datos incompletos, se intenta editar una reseña con un id que no existe, se solicita ordenar por un campo de la tabla que no existe o se ingresa una letra en lugar de un numero al momento de usar el paginado.
+
 
