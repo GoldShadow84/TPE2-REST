@@ -1,21 +1,21 @@
 <?php
 
 require_once "./app/models/review.model.php";
-
 require_once "./app/views/api.view.php";
+require_once './app/helpers/auth-api.helper.php';
 
 class ReviewApiController {
 
     private $model;
     private $view;
-
     private $data;
+    private $authHelper;
 
     public function __construct() {
         
         $this->model = new ReviewModel();
         $this->view = new ApiView();
-        
+        $this->authHelper =  new AuthApiHelper();
         // lee el body del request
         $this->data = file_get_contents("php://input");
     }
@@ -139,36 +139,36 @@ class ReviewApiController {
             //los valores deben ser numeros
             if(is_numeric($page) && (is_numeric($limit))) {
 
-                    if($page > 0 && $limit > 0) { //verificar que el valor ingresado sea minimo 1.
-                        if(isset($paramers[$sortby]) && isset($paramers[$order])){
-                            //calcular cantidad de paginas total
-                            $all = $this->model->getAll(); //obtiene todas las reseñas
-                            $pages = count($all); //obtiene el total de valores
-                            $pages /= $limit; //divide el total de valores por el limite usado.
-                            $pages = ceil($pages); //redondear cifra para arriba.
-                        
-                            $offset = ($page -1) *  $limit;
-        
-                            $reviews = $this->model->orderAndPaginate($sortby, $order, $limit, $offset);
-        
-                            if($reviews) {
-                                $this->view->response($reviews);
-                            }
-                            else {
-                                $this->showErrorPages($pages);
-                            }
+                if($page > 0 && $limit > 0) { //verificar que el valor ingresado sea minimo 1.
+                    if(isset($paramers[$sortby]) && isset($paramers[$order])){
+                        //calcular cantidad de paginas total
+                        $all = $this->model->getAll(); //obtiene todas las reseñas
+                        $pages = count($all); //obtiene el total de valores
+                        $pages /= $limit; //divide el total de valores por el limite usado.
+                        $pages = ceil($pages); //redondear cifra para arriba.
+                    
+                        $offset = ($page -1) *  $limit;
+    
+                        $reviews = $this->model->orderAndPaginate($sortby, $order, $limit, $offset);
+    
+                        if($reviews) {
+                            $this->view->response($reviews);
                         }
                         else {
-                            $this->showErrorParams();
+                            $this->showErrorPages($pages);
                         }
                     }
                     else {
-                        $this->showErrorMinNum(); 
+                        $this->showErrorParams();
                     }
                 }
                 else {
-                    $this->showErrorNaN();
+                    $this->showErrorMinNum(); 
                 }
+            }
+            else {
+                $this->showErrorNaN();
+            }
 
         }//filtrar y ordenar
         else if(isset($_GET['filter']) && isset($_GET['order']) && isset($_GET['sortby']) && !isset($_GET['page']) && !isset($_GET['limit'])) {
@@ -292,31 +292,54 @@ class ReviewApiController {
     //borrar reseña
 
     public function deleteReview($params = null) {
+        //si no se esta logeado, no se ejecuta la funcion
+        if(!$this->authHelper->isLoggedIn()){
+            $this->view->response("No estas logeado", 401);
+            die();
+        }
+
         $id = $params[':ID'];
 
         $review = $this->model->get($id);
         if ($review) {
             $this->model->delete($id);
             $this->view->response("La reseña se eliminó con éxito con el id=$id.", 200);
-        } else 
+        } else {
             $this->view->response("La reseña con el id=$id no existe.", 404);
+        }
     }   
 
     //insertar reseña
 
-    public function insertReview($params = null) {
+    public function insertReview() {
+        //si no se esta logeado, no se ejecuta la funcion
+        if(!$this->authHelper->isLoggedIn()){
+            $this->view->response("No estas logeado", 401);
+            die();
+        }
+        
         $review = $this->getData();
 
         if (empty($review->author) || empty($review->comment) || empty($review->id_Serie_fk)) {
             $this->view->response("Complete los datos", 404);
         } else {
-            $error = $this->model->insert($review->author, $review->comment, $review->id_Serie_fk);
-            if($error) {
-                $this->view->response("Id_serie incorrecto.", 404);
+
+            //verificar que los datos ingresados correspondan con su tipo de dos en la base de datos.
+            if(is_numeric($review->author) || is_numeric($review->comment) || !is_int($review->id_Serie_fk)) {
+                $this->view->response("Verifique el tipo de datos que intenta enviar", 404);
             }
             else {
-                $this->view->response("La reseña se insertó con éxito.", 201);
+                $count = $this->model->insert($review->author, $review->comment, $review->id_Serie_fk);
+
+                if($count != 0) {
+                    $this->view->response("La reseña se insertó con éxito.", 201);
+                }
+                else { //si ninguna fila fue afectada, el id_serie_fk es incorrecto
+                    $this->view->response("Id_serie_fk incorrecto.", 404);
+                }
             }
+
+        
 
         }
     } 
@@ -324,27 +347,36 @@ class ReviewApiController {
     //actualizar reseña
 
       public function updateReview($params = null) {
+        //si no se esta logeado, no se ejecuta la funcion
+        if(!$this->authHelper->isLoggedIn()){
+            $this->view->response("No estas logeado", 401);
+            die();
+        }
+
         $id = $params[':ID'];
         $review = $this->getData();
 
         if (empty($review->author) || empty($review->comment) || empty($review->id_Serie_fk)) {
             $this->view->response("Complete los datos.", 404);
-     
+            
         } else {
-            $count = $this->model->update($id, $review->author, $review->comment, $review->id_Serie_fk);
-            if($count == 0) { //si ninguna fila fue afectada, el id de la reseña no existe
-                $this->view->response("El id no esta registrado.", 404);
-            }
-            else if($count == "error") {
-                $this->view->response("El id de la serie no existe.", 404);
+            if(is_numeric($review->author) || is_numeric($review->comment) || !is_int($review->id_Serie_fk)) {
+                $this->view->response("Verifique el tipo de datos que intenta enviar", 404);
             }
             else {
-                $this->view->response("La reseña se modifico con éxito con el id=$id.", 201);
+                $count = $this->model->update($id, $review->author, $review->comment, $review->id_Serie_fk);
+
+                //si ninguna fila fue afectada.
+                if ($count == "0") {    
+                    $this->view->response("Error, revise que el id exista, los datos que intenta ingresar no sean incorrectos o iguales a la reseña que intenta modificar.", 404);
+                }
+                else {
+                    $this->view->response("La reseña se modifico con éxito con el id=$id.", 201);
+                }
             }
         }
     } 
-
-
+ 
     //funciones de error
 
     public function showErrorNotContent() {

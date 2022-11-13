@@ -1,22 +1,25 @@
 <?php
 require_once './app/views/api.view.php';
 require_once './app/helpers/auth-api.helper.php';
+require_once './app/models/user.model.php';
 
 function base64url_encode($data) {
     return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
 }
 
-
 class AuthApiController {
+  
     private $view;
     private $authHelper;
+    private $model;
     private $data;
 
     public function __construct() {
-        //$this->model = new TaskModel();
+      
         $this->view = new ApiView();
         $this->authHelper = new AuthApiHelper();
-        
+        $this->model = new UserModel();
+
         // lee el body del request
         $this->data = file_get_contents("php://input");
     }
@@ -39,12 +42,23 @@ class AuthApiController {
             return;
         }
 
-        //validar usuario:contraseña
+        //validacion usuario:contraseña
         $userpass = base64_decode($basic[1]); // user:pass
         $userpass = explode(":", $userpass);
         $user = $userpass[0];
         $pass = $userpass[1];
-        if($user == "Nico" && $pass == "web"){
+
+
+         $email = $user;
+         $password = $pass;
+
+         //obtenemos los datos guardados en la tabla de usuarios.
+        $user = $this->model->getByEmail($email);
+
+        //verificamos que las contraseñas y el email/username coincidan.
+
+        if (!empty($user) && password_verify($password, $user->password)) {
+
             //  crear un token
             $header = array(
                 'alg' => 'HS256',
@@ -60,11 +74,14 @@ class AuthApiController {
             $signature = hash_hmac('SHA256', "$header.$payload", "Clave1234", true);
             $signature = base64url_encode($signature);
             $token = "$header.$payload.$signature";
-             $this->view->response($token);
-        }else{
+            $this->view->response($token);
+        
+        } 
+        else {
             $this->view->response('No autorizado', 401);
-        }
-    }
+        } 
+
+ }
 
 
 }
