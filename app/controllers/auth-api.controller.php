@@ -2,6 +2,7 @@
 require_once './app/views/api.view.php';
 require_once './app/helpers/auth-api.helper.php';
 require_once './app/models/user.model.php';
+require_once './app/token.php';
 
 function base64url_encode($data) {
     return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
@@ -69,9 +70,11 @@ class AuthApiController {
                 'name' => "Nico",
                 'exp' => time()+3600
             );
+
             $header = base64url_encode(json_encode($header));
             $payload = base64url_encode(json_encode($payload));
-            $signature = hash_hmac('SHA256', "$header.$payload", "Clave1234", true);
+            $keyToken = getKeyToken();
+            $signature = hash_hmac('SHA256', "$header.$payload", $keyToken, true);
             $signature = base64url_encode($signature);
             $token = "$header.$payload.$signature";
             $this->view->response($token);

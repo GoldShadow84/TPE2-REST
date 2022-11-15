@@ -12,7 +12,8 @@ class AuthApiHelper {
         $payload = $token[1];
         $signature = $token[2];
 
-        $new_signature = hash_hmac('SHA256', "$header.$payload", "Clave1234", true);
+        $keyToken = getKeyToken();
+        $new_signature = hash_hmac('SHA256', "$header.$payload", $keyToken, true);
         $new_signature = base64url_encode($new_signature);
         if($signature!=$new_signature) {
             return array();
